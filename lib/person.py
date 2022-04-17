@@ -11,6 +11,17 @@ class Person(object):
         else:
             self.supplies[supply] += count
 
+    def can_build(self, craft):
+        for craft, count in craft.supplies_required.items():
+            if craft not in self.supplies:  # or self.supplies[craft] <= count
+                return False
+            # elif self.supplies[craft] <= count:
+            #     return False
+            else:
+                continue
+
+        return True
+
 
 person = Person({'name': 'Hector', 'interests': [
                 'sewing', 'millinery', 'drawing']})
@@ -51,13 +62,23 @@ class Event():
         # list(names)
 
     def craft_with_most_supplies(self):
-        max_value = 0
+        max_count = 0
 
-        for quantity in self.crafts.values():
-            if quantity > max_value:
-                max_value = quantity
+        for craft in self.crafts:
+            quantity = len(craft.supplies_required.keys())
+            if quantity > max_count:
+                max_count = quantity
+                max_craft = craft.name
+            return max_craft
 
-        return max_value
+    def supply_list(self):
+        all_supplies = []
+
+        for craft in self.crafts:
+            for supply in craft.supplies_required.keys():
+                if supply not in all_supplies:
+                    all_supplies.append(supply)
+        return all_supplies
 
 
 event = Event("Carla's Craft Connection", [craft], [person])
@@ -80,18 +101,18 @@ knitting = Craft(
     'knitting', {'yarn': 20, 'scissors': 1, 'knitting_needles': 2})
 event2 = Event("Carla's Craft Connection", [sewing, knitting], [hector, toni])
 
-print(event2.attendee_names())
-print(event2.attendee_names() == ["Hector", "Toni"])
-print(event2.craft_with_most_supplies() == "sewing")
-print(event2.supply_list() == [
-      "fabric", "scissors", "thread", "sewing_needles", "yarn", "knitting_needles"])
-print(hector.can_build(sewing) == false)
-
+print('Pass' if event2.attendee_names() else 'Fail')
+print('Pass' if event2.attendee_names() == ["Hector", "Toni"] else 'Fail')
+print('Pass' if event2.craft_with_most_supplies() == "sewing" else 'Fail')
+expected = [
+      "fabric", "scissors", "thread", "sewing_needles", "yarn", "knitting_needles"]
+print('Pass' if event2.supply_list() == expected else 'Fail')
+print('Fail' if hector.can_build(sewing) else 'Pass')
 hector.add_supply('fabric', 7)
 hector.add_supply('thread', 1)
-
-print(hector.can_build(sewing) == false)
+print(hector.can_build(sewing))
+print('Fail' if hector.can_build(sewing) else 'Pass')
 hector.add_supply('scissors', 1)
 hector.add_supply('sewing_needles', 1)
-
 print(hector.can_build(sewing))
+print('Pass' if hector.can_build(sewing) else 'Fail')
